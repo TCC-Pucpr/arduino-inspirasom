@@ -4,20 +4,36 @@ const char MSG_END_CHAR = '}';
 const int MAX_MESSAGE_SIZE = 32;
 char message[MAX_MESSAGE_SIZE];
 
+const uint8_t makeSoundButtonPort = 11;
+const uint8_t debugLedPort = 13;
+
 String receiveMessage();
 void sendMessage();
+void updateButtonState();
+void setupExtra();
 
 void setup() {
   // put your setup code here, to run once:
+  setupButtons();
+  setupExtra();
   Serial.begin(115200);
   Serial.print("\nArduino setup complete");
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  receiveMessage();
-  sendMessage();
+  //receiveMessage();
+  //sendMessage();
   //receiveAndSend();
+}
+
+void setupExtra() {
+  pinMode(debugLedPort, OUTPUT);
+  pinMode(makeSoundButtonPort, INPUT);
+}
+
+void updateButtonState() {
+
 }
 
 String receiveMessage() {
