@@ -90,27 +90,30 @@
 
 #include "button_notes.hpp"
 
+int8_t DEFAULT_NOTE = MIDI_Notes::C[4];
+
 const int8_t combinations_array[16] = {
-  NO_NOTE,
+  DEFAULT_NOTE,
   MIDI_Notes::Ab[3],
   MIDI_Notes::B[4],
   MIDI_Notes::Bb[3],
   MIDI_Notes::A[4],
   MIDI_Notes::F[4],
-  MIDI_Notes::Bb[4],
+  MIDI_Notes::Ab[4],
   MIDI_Notes::E[4],
   MIDI_Notes::Bb[4],
   MIDI_Notes::A[3],
   MIDI_Notes::G[3],
-  MIDI_Notes::C[4],
+  MIDI_Notes::B[3],
   MIDI_Notes::G[4],
   MIDI_Notes::D[4],
   MIDI_Notes::Gb[4],
   MIDI_Notes::C[4]
 };
 
-int8_t getNote(bool button1_state, bool button2_state, bool button3_state, bool button4_state)
+int8_t getNote(bool button1_state, bool button2_state, bool button3_state, bool button4_state, bool airState)
 {
+  if(receiving_air == false) return NO_NOTE;
   uint8_t index = (button4_state << 3) | (button3_state << 2) | (button2_state << 1) | button1_state;
   return combinations_array[index];
 }

@@ -2,19 +2,23 @@
 #include "button_notes.hpp"
 #include "configuration.hpp"
 
-const int BUTTONS_PIN[4] = { 52, 53, 50, 51 };
+const int BUTTONS_PIN[4] = { 5,4,3,2 };
+const int AIR_BUTTON_PIN = 12;
 const int LED_PIN = 13;
-const int ANALOG_PIN = A8;
+const int ANALOG_PIN = A0;
 const Channel DEFAULT_CHANNEL = Channel_1;
 
 USBMIDI_Interface midiInterface;
 
 int current_note = NO_NOTE;
-uint8_t current_velocity = 0;
+int8_t current_velocity = 0;
 bool should_update_velocity = false;
+bool receiving_air = false;
+bool is_holding_toggle_button = false;
 
 int buttons_state[4];
 
+void update_air_state();
 void update_buttons_state();
 void update_velocity();
 void update_current_note();
@@ -31,6 +35,7 @@ void setup() {
     pinMode(BUTTONS_PIN[i], INPUT);
     buttons_state[i] = LOW;
   }
+  pinMode(AIR_BUTTON_PIN, INPUT);
   pinMode(LED_PIN, OUTPUT);
   pinMode(ANALOG_PIN, INPUT);
   midiInterface.setCallbacks(callback);
@@ -38,16 +43,29 @@ void setup() {
 }
 
 void loop() {
+  update_air_state();
   update_buttons_state();
   update_velocity();
   update_current_note();
   midiInterface.update();
 }
 
+void update_air_state() {
+  if(digitalRead(AIR_BUTTON_PIN) == HIGH)
+  {
+    if(is_holding_toggle_button == true) return;
+    receiving_air = !receiving_air;
+    is_holding_toggle_button = true;
+  }
+  else {
+    is_holding_toggle_button = false;
+  }
+}
+
 void update_current_note() {
-  int new_note = getNote(buttons_state[0], buttons_state[1], buttons_state[2], buttons_state[3]);
+  int new_note = getNote(buttons_state[0], buttons_state[1], buttons_state[2], buttons_state[3], receiving_air);
   if(new_note == NO_NOTE)
-  { 
+  {
     if(current_note == NO_NOTE) return;
     MIDIAddress previous_address = { current_note, DEFAULT_CHANNEL };
     midiInterface.sendNoteOff(previous_address, current_velocity);
@@ -70,7 +88,7 @@ void update_buttons_state() {
 }
 
 void update_velocity() {
-  uint8_t new_velocity = map(analogRead(ANALOG_PIN), 0, 1000, 0, 126);
+  int8_t new_velocity = map(analogRead(ANALOG_PIN), 0, 1000, 0, 126);
   int diff = abs_diff(new_velocity, current_velocity);
   if(diff > MIN_VELOCITY_DIFF)
   {
