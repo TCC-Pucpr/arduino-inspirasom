@@ -90,7 +90,7 @@
 
 #include "button_notes.hpp"
 
-int8_t DEFAULT_NOTE = MIDI_Notes::C[4];
+int8_t DEFAULT_NOTE = MIDI_Notes::C[5];
 
 const int8_t combinations_array[16] = {
   DEFAULT_NOTE,
