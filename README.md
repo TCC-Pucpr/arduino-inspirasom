@@ -24,7 +24,7 @@ permitindo upload do codigo.
 ### Código do Software
 
 O projeto consiste em dois repositórios, este, e o do código do software para rodar no computaador,
-que pode ser encontrado acessando [link](https://github.com/TCC-Pucpr/fed-inspirasom/tree/20-prototipo).
+que pode ser encontrado acessando este [link](https://github.com/TCC-Pucpr/fed-inspirasom/tree/20-prototipo).
 
 Este link irá redireciona-lo para uma branch parecida com essa, onde não
 haverá mudanças a partir da data de entrega.
