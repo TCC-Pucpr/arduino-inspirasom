@@ -88,27 +88,28 @@
   0 | 0
 */
 
+#include <Control_Surface.h>
 #include "button_notes.hpp"
 
-int8_t DEFAULT_NOTE = MIDI_Notes::C[5];
+int8_t DEFAULT_NOTE = MIDI_Notes::note(MIDI_Notes::C, 5);
 
 const int8_t combinations_array[16] = {
   DEFAULT_NOTE,
-  MIDI_Notes::Ab[3],
-  MIDI_Notes::B[4],
-  MIDI_Notes::Bb[3],
-  MIDI_Notes::A[4],
-  MIDI_Notes::F[4],
-  MIDI_Notes::Ab[4],
-  MIDI_Notes::E[4],
-  MIDI_Notes::Bb[4],
-  MIDI_Notes::A[3],
-  MIDI_Notes::G[3],
-  MIDI_Notes::B[3],
-  MIDI_Notes::G[4],
-  MIDI_Notes::D[4],
-  MIDI_Notes::Gb[4],
-  MIDI_Notes::C[4]
+  MIDI_Notes::note(MIDI_Notes::Ab, 3),
+  MIDI_Notes::note(MIDI_Notes::B, 4),
+  MIDI_Notes::note(MIDI_Notes::Bb, 3),
+  MIDI_Notes::note(MIDI_Notes::A, 4),
+  MIDI_Notes::note(MIDI_Notes::F, 4),
+  MIDI_Notes::note(MIDI_Notes::Ab, 4),
+  MIDI_Notes::note(MIDI_Notes::E, 4),
+  MIDI_Notes::note(MIDI_Notes::Bb, 4),
+  MIDI_Notes::note(MIDI_Notes::A, 3),
+  MIDI_Notes::note(MIDI_Notes::G, 3),
+  MIDI_Notes::note(MIDI_Notes::B, 3),
+  MIDI_Notes::note(MIDI_Notes::G, 4),
+  MIDI_Notes::note(MIDI_Notes::D, 4),
+  MIDI_Notes::note(MIDI_Notes::Gb, 4),
+  MIDI_Notes::note(MIDI_Notes::C, 4)
 };
 
 int8_t getNote(bool button1_state, bool button2_state, bool button3_state, bool button4_state, bool airState)
