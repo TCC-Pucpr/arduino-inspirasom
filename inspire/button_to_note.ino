@@ -113,18 +113,7 @@ const int8_t combinations_array[16] = {
 
 int8_t getNote(bool button1_state, bool button2_state, bool button3_state, bool button4_state, bool airState)
 {
-  if(receiving_air == false) return NO_NOTE;
+  if(airState == false) return NO_NOTE;
   uint8_t index = (button4_state << 3) | (button3_state << 2) | (button2_state << 1) | button1_state;
   return combinations_array[index];
 }
-
-
-
-
-
-
-
-
-
-
-

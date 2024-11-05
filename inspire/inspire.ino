@@ -1,20 +1,27 @@
+#include <Arduino_BuiltIn.h>
+
+#include <Average.h>
+#include <Q2HX711.h>
+
 #include <Control_Surface.h>
 #include "button_notes.hpp"
 #include "configuration.hpp"
 
 const int BUTTONS_PIN[4] = { 5,4,3,2 };
-const int AIR_BUTTON_PIN = 12;
 const int LED_PIN = 13;
 const int ANALOG_PIN = A0;
 const Channel DEFAULT_CHANNEL = Channel_1;
 
+const int CLK_PIN = 8;
+const int OUT_PIN = 9;
+int avg_size = 10;
+
 USBMIDI_Interface midiInterface;
+//HairlessMIDI_Interface midiInterface;
 
 int current_note = NO_NOTE;
-int8_t current_velocity = 0;
+long current_velocity = 0;
 bool should_update_velocity = false;
-bool receiving_air = false;
-bool is_holding_toggle_button = false;
 
 int buttons_state[4];
 
@@ -22,6 +29,9 @@ void update_air_state();
 void update_buttons_state();
 void update_velocity();
 void update_current_note();
+
+Q2HX711 MPS20N0040D(OUT_PIN, CLK_PIN);
+Average<long> ave(avg_size);
 
 struct ConfigCallback : MIDI_Callbacks {
   void onSysExMessage(MIDI_Interface &, SysExMessage sysex) override {
@@ -35,7 +45,6 @@ void setup() {
     pinMode(BUTTONS_PIN[i], INPUT);
     buttons_state[i] = LOW;
   }
-  pinMode(AIR_BUTTON_PIN, INPUT);
   pinMode(LED_PIN, OUTPUT);
   pinMode(ANALOG_PIN, INPUT);
   midiInterface.setCallbacks(callback);
@@ -51,26 +60,18 @@ void loop() {
 }
 
 void update_air_state() {
-  if(digitalRead(AIR_BUTTON_PIN) == HIGH)
-  {
-    if(is_holding_toggle_button == true) return;
-    receiving_air = !receiving_air;
-    is_holding_toggle_button = true;
-  }
-  else {
-    is_holding_toggle_button = false;
-  }
+  ave.push(MPS20N0040D.read());
 }
 
 void update_current_note() {
-  int new_note = getNote(buttons_state[0], buttons_state[1], buttons_state[2], buttons_state[3], receiving_air);
+  int new_note = getNote(buttons_state[0], buttons_state[1], buttons_state[2], buttons_state[3], should_update_velocity);
   if(new_note == NO_NOTE)
   {
     if(current_note == NO_NOTE) return;
     MIDIAddress previous_address = { current_note, DEFAULT_CHANNEL };
     midiInterface.sendNoteOff(previous_address, current_velocity);
   }
-  else if(current_note != new_note || should_update_velocity == true)
+  else if(current_note != new_note || should_update_velocity)
   {
     if(current_note != NO_NOTE || (should_update_velocity && current_note == new_note))
     {
@@ -88,15 +89,17 @@ void update_buttons_state() {
 }
 
 void update_velocity() {
-  int8_t new_velocity = map(analogRead(ANALOG_PIN), 0, 1000, 0, 126);
-  int diff = abs_diff(new_velocity, current_velocity);
+  long new_velocity = map(MPS20N0040D.read(), 7800000, 8100000, 0, 126);
+  long diff = abs_diff(new_velocity, current_velocity);
   if(diff > MIN_VELOCITY_DIFF)
   {
     current_velocity = new_velocity;
     should_update_velocity = true;
+    digitalWrite(LED_PIN, HIGH);
   }
   else 
   {
     should_update_velocity = false;
+    digitalWrite(LED_PIN, LOW);
   }
 }
